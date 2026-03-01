@@ -1,0 +1,56 @@
+# General configuration applicable to both C and C++
+BasedOnStyle: Google
+AlignAfterOpenBracket: Align
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+ColumnLimit: 120
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+SpaceBeforeParens: ControlStatements
+SpaceBeforeSquareBrackets: false
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterControlStatement: Never
+  BeforeElse: false
+  BeforeLambdaBody: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+# C++ specific settings (use in the C++ code)
+Cpp11BracedListStyle: true
+BinPackArguments: true
+BinPackParameters: BinPack
+PointerAlignment: Left
+NamespaceIndentation: None
+ReflowComments: Always
+BreakTemplateDeclarations: Yes
+# C specific settings (use in the C code)
+# C doesn't require C++ specific settings like `Cpp11BracedListStyle`
+# Include blocks and categories for both C and C++
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<ext/.*\.h>'
+    Priority: 2
+    SortPriority: 0
+    CaseSensitive: false
+  - Regex: '^<.*\.h>'
+    Priority: 1
+    SortPriority: 0
+    CaseSensitive: false
+  - Regex: '^<.*'
+    Priority: 2
+    SortPriority: 0
+    CaseSensitive: false
+  - Regex: '.*'
+    Priority: 3
+    SortPriority: 0
+    CaseSensitive: false
+# Macro and comment settings for both C and C++
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
