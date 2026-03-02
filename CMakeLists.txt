@@ -26,7 +26,7 @@ enable_language(C CXX ASM)
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 # Setup compiler settings
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -48,6 +48,7 @@ set(sources_SRCS
 # Include directories for all compilers
 set(include_DIRS
 	${CMAKE_CURRENT_SOURCE_DIR}/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4-drivers/inc
 )
 
 # Include directories for each compiler
