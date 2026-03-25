@@ -1,3 +1,7 @@
+External:
+  ConfigBlock:
+    - >-
+      --query-driver=/opt/st/stm32cubeclt_1.16.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc
 CompileFlags:
   Add:
     - '-ferror-limit=0'
@@ -8,4 +12,3 @@ Diagnostics:
     - unused-includes
     - unknown_typename
     - unknown_typename_suggest
-    - typename_requires_specqual
