@@ -36,7 +36,7 @@ int main(void) {
   uint8_t usart_tx_byte_send = 8;
   setup_uart();
   for (;;) {
-    WAIT(MEDIUM);
+    // WAIT(MEDIUM);
     usart_tx_byte_blocking(USART2, usart_tx_byte_send);
   }
 }
@@ -45,7 +45,8 @@ void setup_uart() {
   GPIO_peri_clock_control(GPIOA, GPIO_CLOCK_ENABLE);
   GPIOConfig_t default_gpio_cfg = {.mode = GPIO_MODE_ALTFN,
                                    .speed = GPIO_SPEED_HIGH,
-                                   .float_resistor = GPIO_PUPDR_PULLUP.output_type = GPIO_OP_TYPE_PUSHPULL,
+                                   .float_resistor = GPIO_PUPDR_PULLUP,
+                                   .output_type = GPIO_OP_TYPE_PUSHPULL,
                                    .alt_func_num = 7};
 
   GPIOHandle_t uart_tx = {.p_GPIO_addr = GPIOA, .cfg = default_gpio_cfg};
@@ -67,8 +68,6 @@ void setup_uart() {
                             .word_length = USART_WORD_LENGTH_8_BIT_DATA,
                             .synchronous = USART_ASYNCHRONOUS};
 
-  USARTHandle_t usart_handle = {.addr = USART2, .cfg = uart_cfg
-
-  };
+  USARTHandle_t usart_handle = {.addr = USART2, .cfg = uart_cfg};
   usart_init(&usart_handle);
 }
