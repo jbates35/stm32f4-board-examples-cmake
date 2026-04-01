@@ -41,9 +41,13 @@ set(cpu_PARAMS
     # -mcpu, -mfloat, -mfloat-abi, ...
 )
 
+file(GLOB_RECURSE USER_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.S")
+file(GLOB_RECURSE DRIVER_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/stm32f4-drivers/src/*.c")
+
 # Sources
 set(sources_SRCS
-	${CMAKE_CURRENT_SOURCE_DIR}/Src/main.c
+    ${USER_SOURCES}
+    ${DRIVER_SOURCES}
 )
 
 # Include directories for all compilers
