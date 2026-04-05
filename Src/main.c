@@ -27,47 +27,56 @@ int _write(int le, char* ptr, int len) {
 #define MEDIUM 300001
 #define SLOW 1000000
 
+#define UART_GPIO_PORT GPIOC
+#define UART_GPIO_TX_PIN 10
+#define UART_GPIO_RX_PIN 11
+#define UART_GPIO_ALTFN_NUM 8
+#define UART_PORT UART4
+
 #define WAIT(CNT)                                          \
   do {                                                     \
     for (int sleep_cnt = 0; sleep_cnt < CNT; sleep_cnt++); \
   } while (0)
 
 int main(void) {
-  uint8_t usart_tx_byte_send = 8;
+  char test_str[] = "1a2a3a";
   setup_uart();
+
+  int breakpoint_here = 0;
+
   for (;;) {
-    // WAIT(MEDIUM);
-    usart_tx_byte_blocking(USART2, usart_tx_byte_send);
+    WAIT(MEDIUM);
+    usart_tx_word_blocking(UART_PORT, test_str, SIZEOF(test_str));
   }
 }
 
 void setup_uart() {
-  GPIO_peri_clock_control(GPIOA, GPIO_CLOCK_ENABLE);
+  GPIO_peri_clock_control(UART_GPIO_PORT, GPIO_CLOCK_ENABLE);
   GPIOConfig_t default_gpio_cfg = {.mode = GPIO_MODE_ALTFN,
                                    .speed = GPIO_SPEED_HIGH,
-                                   .float_resistor = GPIO_PUPDR_PULLUP,
+                                   .float_resistor = GPIO_PUPDR_NONE,
                                    .output_type = GPIO_OP_TYPE_PUSHPULL,
-                                   .alt_func_num = 7};
+                                   .alt_func_num = UART_GPIO_ALTFN_NUM};
 
-  GPIOHandle_t uart_tx = {.p_GPIO_addr = GPIOA, .cfg = default_gpio_cfg};
-  uart_tx.cfg.pin_number = 2;
+  GPIOHandle_t uart_tx = {.p_GPIO_addr = UART_GPIO_PORT, .cfg = default_gpio_cfg};
+  uart_tx.cfg.pin_number = UART_GPIO_TX_PIN;
   GPIO_init(&uart_tx);
 
-  GPIOHandle_t uart_rx = {.p_GPIO_addr = GPIOA, .cfg = default_gpio_cfg};
-  uart_rx.cfg.pin_number = 3;
+  GPIOHandle_t uart_rx = {.p_GPIO_addr = UART_GPIO_PORT, .cfg = default_gpio_cfg};
+  uart_rx.cfg.pin_number = UART_GPIO_RX_PIN;
   GPIO_init(&uart_rx);
 
-  usart_peri_clock_control(USART2, USART_ENABLE);
+  usart_peri_clock_control(UART_PORT, USART_ENABLE);
   USARTConfig_t uart_cfg = {.baud_rate = USART_BAUD_RATE_9600,
                             .peri_clock_freq_hz = 16E6,
                             .en_on_start = USART_ENABLE,
-                            .mode = USART_MODE_RX_ONLY,
+                            .mode = USART_MODE_TX_ONLY,
                             .hw_flow_control = USART_HW_FLOW_NONE,
                             .parity_type = USART_PARITY_NONE,
                             .stop_bit_count = USART_STOP_BITS_ONE,
                             .word_length = USART_WORD_LENGTH_8_BIT_DATA,
                             .synchronous = USART_ASYNCHRONOUS};
 
-  USARTHandle_t usart_handle = {.addr = USART2, .cfg = uart_cfg};
+  USARTHandle_t usart_handle = {.addr = UART_PORT, .cfg = uart_cfg};
   usart_init(&usart_handle);
 }
