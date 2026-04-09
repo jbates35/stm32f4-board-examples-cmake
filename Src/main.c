@@ -46,7 +46,13 @@ int main(void) {
 
   for (;;) {
     WAIT(MEDIUM);
-    usart_tx_word_blocking(UART_PORT, test_str, SIZEOF(test_str));
+    // NOTE: Next step: Take something from the rx buffer, convert it to int, add one, tx it
+    uint8_t rx_ret_byte = '6';
+    rx_ret_byte = usart_rx_byte_blocking(UART_PORT) - '0';
+
+    // Reconvert back to char after adding 1, send'er
+    rx_ret_byte = rx_ret_byte + 1 + '0';
+    usart_tx_byte_blocking(UART_PORT, rx_ret_byte);
   }
 }
 
@@ -70,7 +76,7 @@ void setup_uart() {
   USARTConfig_t uart_cfg = {.baud_rate = USART_BAUD_RATE_9600,
                             .peri_clock_freq_hz = 16E6,
                             .en_on_start = USART_ENABLE,
-                            .mode = USART_MODE_TX_ONLY,
+                            .mode = USART_MODE_BIDIRECTIONAL,
                             .hw_flow_control = USART_HW_FLOW_NONE,
                             .parity_type = USART_PARITY_NONE,
                             .stop_bit_count = USART_STOP_BITS_ONE,
