@@ -56,13 +56,6 @@ int main(void) {
   }
 }
 
-void UART4_IRQHandler(void) {
-  USARTIRQType_t irq_type = usart_irq_handling(UART4);
-  if (irq_type == USART_IRQ_TYPE_TXE) {
-  } else if (irq_type == USART_IRQ_TYPE_RXNE) {
-  }
-}
-
 void setup_uart() {
   GPIO_peri_clock_control(UART_GPIO_PORT, GPIO_CLOCK_ENABLE);
   GPIOConfig_t default_gpio_cfg = {.mode = GPIO_MODE_ALTFN,
@@ -88,11 +81,8 @@ void setup_uart() {
                             .parity_type = USART_PARITY_NONE,
                             .stop_bit_count = USART_STOP_BITS_ONE,
                             .word_length = USART_WORD_LENGTH_8_BIT_DATA,
-                            .interrupt_en = USART_ENABLE,
                             .synchronous = USART_ASYNCHRONOUS};
 
   USARTHandle_t usart_handle = {.addr = UART_PORT, .cfg = uart_cfg};
   usart_init(&usart_handle);
-
-  NVIC_EnableIRQ(UART4_IRQn);
 }
