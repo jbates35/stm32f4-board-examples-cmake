@@ -46,22 +46,27 @@ int main(void) {
 
   for (;;) {
     WAIT(MEDIUM);
-    // NOTE: Next step: Take something from the rx buffer, convert it to int, add one, tx it
-    uint8_t rx_ret_byte = '6';
-    rx_ret_byte = usart_rx_byte_blocking(UART_PORT) - '0';
-
-    // Reconvert back to char after adding 1, send'er
-    rx_ret_byte = rx_ret_byte + 1 + '0';
-    usart_tx_byte_blocking(UART_PORT, rx_ret_byte);
   }
 }
 
 void UART4_IRQHandler(void) {
   USARTIRQType_t irq_type = usart_irq_handling(UART4);
+
+  static uint8_t cnt = 0;
+  char tx_word[] = "TEST_STR\n";
+
   if (irq_type == USART_IRQ_TYPE_TXE) {
+    UART_PORT->DR = tx_word[cnt];
+    cnt++;
+    if (cnt == SIZEOF(tx_word) - 1) {
+      UART_PORT->CR1 &= ~USART_CR1_TXEIE;
+      cnt = 0;
+    }
   } else if (irq_type == USART_IRQ_TYPE_RXNE) {
     uint16_t data = UART_PORT->DR - '0';
-    UART_PORT->DR = data + 1 + '0';
+    if (data == 1) {
+      UART_PORT->CR1 |= USART_CR1_TXEIE;
+    }
   }
 }
 
