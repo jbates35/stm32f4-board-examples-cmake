@@ -59,13 +59,13 @@ void UART4_IRQHandler(void) {
     UART_PORT->DR = tx_word[cnt];
     cnt++;
     if (cnt == SIZEOF(tx_word) - 1) {
-      UART_PORT->CR1 &= ~USART_CR1_TXEIE;
+      usart_reset_interrupt(UART_PORT);
       cnt = 0;
     }
   } else if (irq_type == USART_IRQ_TYPE_RXNE) {
     uint16_t data = UART_PORT->DR - '0';
     if (data == 1) {
-      UART_PORT->CR1 |= USART_CR1_TXEIE;
+      usart_start_tx_interrupt(UART_PORT);
     }
   }
 }
