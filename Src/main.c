@@ -39,34 +39,35 @@ int _write(int le, char* ptr, int len) {
   } while (0)
 
 int main(void) {
-  char test_str[] = "1a2a3a";
   setup_uart();
 
-  int breakpoint_here = 0;
+  char tx_word[] = "TEST_STR_FOR_REAL\n";
+  size_t tx_len = SIZEOF(tx_word);
+
+  USARTInterruptConfig_t usart_int_setup_cfg = {
+      .error_interrupts_en = USART_DISABLE,
+      .idle_en = USART_DISABLE,
+      .tx_complete_en = USART_DISABLE,
+      .tx = {.buff = tx_word, .len = tx_len, .circular = USART_INTERRUPT_NON_CIRCULAR, .callback = NULL},
+      .rx = {.buff = NULL, .len = 0, .callback = NULL}};
+  usart_setup_interrupt(UART_PORT, &usart_int_setup_cfg);
+
+  NVIC_EnableIRQ(UART4_IRQn);
+
+  usart_reset_tx_interrupt(UART_PORT);
 
   for (;;) {
-    WAIT(MEDIUM);
+    usart_start_tx_interrupt(UART_PORT);
+    WAIT(SLOW);
   }
 }
 
 void UART4_IRQHandler(void) {
   USARTIRQType_t irq_type = usart_irq_handling(UART4);
-
-  static uint8_t cnt = 0;
-  char tx_word[] = "TEST_STR\n";
-
   if (irq_type == USART_IRQ_TYPE_TXE) {
-    UART_PORT->DR = tx_word[cnt];
-    cnt++;
-    if (cnt == SIZEOF(tx_word) - 1) {
-      usart_reset_interrupt(UART_PORT);
-      cnt = 0;
-    }
+    usart_irq_tx_word_handling(UART_PORT);
   } else if (irq_type == USART_IRQ_TYPE_RXNE) {
-    uint16_t data = UART_PORT->DR - '0';
-    if (data == 1) {
-      usart_start_tx_interrupt(UART_PORT);
-    }
+    usart_irq_rx_word_handling(UART_PORT);
   }
 }
 
@@ -95,11 +96,9 @@ void setup_uart() {
                             .parity_type = USART_PARITY_NONE,
                             .stop_bit_count = USART_STOP_BITS_ONE,
                             .word_length = USART_WORD_LENGTH_8_BIT_DATA,
-                            .rx_interrupt_en = USART_ENABLE,
+                            .rx_interrupt_en = USART_DISABLE,
                             .synchronous = USART_ASYNCHRONOUS};
 
   USARTHandle_t usart_handle = {.addr = UART_PORT, .cfg = uart_cfg};
   usart_init(&usart_handle);
-
-  NVIC_EnableIRQ(UART4_IRQn);
 }
