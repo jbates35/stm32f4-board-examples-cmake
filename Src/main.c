@@ -38,26 +38,41 @@ int _write(int le, char* ptr, int len) {
     for (int sleep_cnt = 0; sleep_cnt < CNT; sleep_cnt++); \
   } while (0)
 
+uint8_t tx_buff[10] = "";
+uint16_t tx_len = 10;
+uint8_t rx_buff[10] = "";
+uint16_t rx_len = 10;
+
+/* NOTE: I should look into a command like structure for rx ...
+          Maybe have USARTRXCommand_t ...
+*/
+
+/* NOTE: Probably should also move rx_interrupt_enable to the setup rx interrupt stuff */
+/* NOTE: Maybe also add an enable flag to make the config more explicit */
+
+void rx_callback(void) {
+  for (int i = 0; i < rx_len; i++) {
+    tx_buff[i] = 10 - (rx_buff[i] - '0');
+    tx_buff[i] += '0';
+  }
+
+  usart_start_tx_interrupt(UART_PORT);
+}
+
 int main(void) {
   setup_uart();
-
-  char tx_word[] = "TEST_STR_FOR_REAL\n";
-  size_t tx_len = SIZEOF(tx_word);
 
   USARTInterruptConfig_t usart_int_setup_cfg = {
       .error_interrupts_en = USART_DISABLE,
       .idle_en = USART_DISABLE,
       .tx_complete_en = USART_DISABLE,
-      .tx = {.buff = tx_word, .len = tx_len, .circular = USART_INTERRUPT_NON_CIRCULAR, .callback = NULL},
-      .rx = {.buff = NULL, .len = 0, .callback = NULL}};
+      .tx = {.buff = tx_buff, .len = tx_len, .circular = USART_INTERRUPT_NON_CIRCULAR, .callback = NULL},
+      .rx = {.buff = rx_buff, .len = rx_len, .callback = rx_callback}};
   usart_setup_interrupt(UART_PORT, &usart_int_setup_cfg);
 
   NVIC_EnableIRQ(UART4_IRQn);
 
-  usart_reset_tx_interrupt(UART_PORT);
-
   for (;;) {
-    usart_start_tx_interrupt(UART_PORT);
     WAIT(SLOW);
   }
 }
@@ -96,7 +111,7 @@ void setup_uart() {
                             .parity_type = USART_PARITY_NONE,
                             .stop_bit_count = USART_STOP_BITS_ONE,
                             .word_length = USART_WORD_LENGTH_8_BIT_DATA,
-                            .rx_interrupt_en = USART_DISABLE,
+                            .rx_interrupt_en = USART_ENABLE,
                             .synchronous = USART_ASYNCHRONOUS};
 
   USARTHandle_t usart_handle = {.addr = UART_PORT, .cfg = uart_cfg};
