@@ -52,8 +52,11 @@ uint16_t rx_len = 10;
 
 void rx_callback(void) {
   for (int i = 0; i < rx_len; i++) {
-    uint8_t tx_byte = rx_buff[i] + 1;
-    tx_buff[i] += tx_byte;
+    uint8_t tx_byte = rx_buff[i] - '0';
+    tx_byte = 9 - tx_byte;
+    tx_byte += '0';
+
+    tx_buff[i] = tx_byte;
   }
 
   usart_start_tx_interrupt(UART_PORT);
