@@ -52,8 +52,8 @@ uint16_t rx_len = 10;
 
 void rx_callback(void) {
   for (int i = 0; i < rx_len; i++) {
-    tx_buff[i] = 10 - (rx_buff[i] - '0');
-    tx_buff[i] += '0';
+    uint8_t tx_byte = rx_buff[i] + 1;
+    tx_buff[i] += tx_byte;
   }
 
   usart_start_tx_interrupt(UART_PORT);
@@ -66,8 +66,12 @@ int main(void) {
       .error_interrupts_en = USART_DISABLE,
       .idle_en = USART_DISABLE,
       .tx_complete_en = USART_DISABLE,
-      .tx = {.buff = tx_buff, .len = tx_len, .circular = USART_INTERRUPT_NON_CIRCULAR, .callback = NULL},
-      .rx = {.buff = rx_buff, .len = rx_len, .callback = rx_callback}};
+      .tx = {.en = USART_ENABLE,
+             .buff = tx_buff,
+             .len = tx_len,
+             .circular = USART_INTERRUPT_NON_CIRCULAR,
+             .callback = NULL},
+      .rx = {.en = USART_ENABLE, .buff = rx_buff, .len = rx_len, .callback = rx_callback}};
   usart_setup_interrupt(UART_PORT, &usart_int_setup_cfg);
 
   NVIC_EnableIRQ(UART4_IRQn);
@@ -111,7 +115,6 @@ void setup_uart() {
                             .parity_type = USART_PARITY_NONE,
                             .stop_bit_count = USART_STOP_BITS_ONE,
                             .word_length = USART_WORD_LENGTH_8_BIT_DATA,
-                            .rx_interrupt_en = USART_ENABLE,
                             .synchronous = USART_ASYNCHRONOUS};
 
   USARTHandle_t usart_handle = {.addr = UART_PORT, .cfg = uart_cfg};
