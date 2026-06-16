@@ -123,6 +123,8 @@ void setup_uart() {
   USARTConfig_t uart_cfg = {.baud_rate = USART_BAUD_RATE_9600,
                             .peri_clock_freq_hz = 16E6,
                             .en_on_start = USART_ENABLE,
+                            .tx_dma_en = USART_DISABLE,
+                            .rx_dma_en = USART_DISABLE,
                             .mode = USART_MODE_BIDIRECTIONAL,
                             .hw_flow_control = USART_HW_FLOW_NONE,
                             .parity_type = USART_PARITY_NONE,
